@@ -1,0 +1,29 @@
+name: Site Uptime Monitor
+
+on:
+  schedule:
+    - cron: '*\2 * * * *'  # Runs every hour
+  workflow_dispatch:      # Allows manual run
+
+jobs:
+  ping-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping and Notify
+        env:
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          TARGET="https://team09.csc429.io"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$TARGET")
+          TIMESTAMP=$(date)
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            curl -X POST -H 'Content-type: application/json' --data "{
+              \"text\": \"<!channel> $TARGET is DOWN (Status: $HTTP_STATUS) at $TIMESTAMP\"
+            }" "$WEBHOOK_URL"
+          else
+            curl -X POST -H 'Content-type: application/json' --data "{
+              \"text\": \"<!channel> $TARGET is UP (Status: $HTTP_STATUS) at $TIMESTAMP\"
+            }" "$WEBHOOK_URL"
+          fi
+
