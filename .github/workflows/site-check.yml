@@ -18,12 +18,12 @@ jobs:
           TIMESTAMP=$(date)
 
           if [ "$HTTP_STATUS" -ne 200 ]; then
-            curl -X POST -H 'Content-type: application/json' --data "{
-              \"text\": \"<!channel> $TARGET is DOWN (Status: $HTTP_STATUS) at $TIMESTAMP\"
-            }" "$WEBHOOK_URL"
+            MESSAGE="<!channel> $TARGET is DOWN (Status: $HTTP_STATUS) at $TIMESTAMP"
           else
-            curl -X POST -H 'Content-type: application/json' --data "{
-              \"text\": \"<!channel> $TARGET is UP (Status: $HTTP_STATUS) at $TIMESTAMP\"
-            }" "$WEBHOOK_URL"
+            MESSAGE="$TARGET is UP (Status: $HTTP_STATUS) at $TIMESTAMP"
           fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" \
+            "$WEBHOOK_URL"
 
